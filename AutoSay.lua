@@ -11,7 +11,7 @@
         You need to place the message to be sent in the spam folder under the configuration file folder and name it arbitrarily.
         You can click the Open Settings Folder button in the Settings module's Advanced section to open the configuration file folder.
 
-    Github:
+    Github: https://github.com/NaerQAQ/AutoSay
 ]]
 
 -- MISC
