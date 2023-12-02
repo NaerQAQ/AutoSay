@@ -2,7 +2,7 @@
 
 --[[
     Author: NaerQAQ / Wink
-    Version: 1.0
+    Version: 1.1
     Script Name: AutoSay
 
     Description:
@@ -51,12 +51,19 @@ local last_spam_tick = 0
 -- Last read content of the file
 local last_file_content = ""
 
---- Load lines from the file into the array
+---
+-- Loads lines from a specified file into an array and updates the array if the file content has changed.
+--
+-- This function reads the content of a file, specified by the user-configured file name,
+-- and stores each line in an array. It performs a comparison with the last read file content
+-- to determine if an update is necessary. If the file name is empty or the content is unchanged,
+-- the function exits early without modifying the array.
+--
 local function LoadLinesFromFile()
     local file_name_value = file_name:GetValue()
 
     -- Construct the file path
-    local final_file_name = "spam/" .. file_name_value
+    local final_file_name = trim("spam/" .. file_name_value)
 
     -- Exit if the file name is empty
     if file_name_value == "" then
@@ -83,7 +90,12 @@ local function LoadLinesFromFile()
     last_file_content = file_content
 end
 
---- Called on each frame draw
+---
+-- Called on each frame draw to perform spam message output based on predefined settings.
+--
+-- This function retrieves user-configurable values, loads lines from a file, and outputs messages at specified intervals.
+-- The spam behavior is controlled by user settings including enabling/disabling, file name, wait time, and team messaging.
+--
 local function OnDraw()
     local is_enable_value = is_enable:GetValue()
     local file_name_value = file_name:GetValue()
@@ -124,6 +136,16 @@ local function OnDraw()
         current_line = 1
         last_spam_tick = 0
     end
+end
+
+---
+-- Removes leading and trailing whitespace from a given string.
+--
+-- @param string The string to be trimmed.
+-- @return The string without leading and trailing whitespace.
+--
+function trim(string)
+  return (string:gsub("^%s*(.-)%s*$", "%1"))
 end
 
 -- Register the callback
