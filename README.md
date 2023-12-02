@@ -21,8 +21,8 @@ _**(We have provided an example, and you can find it in the "spam" folder on the
 
 ### Contributors
 
-- NaerQAQ (QQ: 3025415724)
-- Wink (QQ: 7760036)
+- **_NaerQAQ (QQ: 3025415724)_**
+- **_Wink (QQ: 7760036)_**
 
 ### Update Suggestions
 If you have any features you'd like to see implemented, feel free to open an issue. If you're willing to contribute by submitting a pull request, we would greatly appreciate it! <3
