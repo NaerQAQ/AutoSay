@@ -1,8 +1,6 @@
----@diagnostic disable: undefined-global
-
 --[[
     Author: NaerQAQ / Wink
-    Version: 1.1
+    Version: 1.1.1
     Script Name: AutoSay
 
     Description:
@@ -63,7 +61,7 @@ local function LoadLinesFromFile()
     local file_name_value = file_name:GetValue()
 
     -- Construct the file path
-    local final_file_name = trim("spam/" .. file_name_value)
+    local final_file_name = Trim("spam/" .. file_name_value)
 
     -- Exit if the file name is empty
     if file_name_value == "" then
@@ -71,7 +69,7 @@ local function LoadLinesFromFile()
     end
 
     -- Read file content
-    local file_content = file.Read(final_file_name, "r") or ""
+    local file_content = file.Read(final_file_name) or ""
 
     -- Exit if the file content is the same as the last time
     if file_content == last_file_content then
@@ -144,7 +142,7 @@ end
 -- @param string The string to be trimmed.
 -- @return The string without leading and trailing whitespace.
 --
-function trim(string)
+function Trim(string)
   return (string:gsub("^%s*(.-)%s*$", "%1"))
 end
 
