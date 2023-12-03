@@ -105,8 +105,6 @@ local function OnDrawAutoSay()
     -- Load lines from the file into the array
     as_msg_lines = LoadLinesFromFile(as_msg_lines, file_name_value)
 
-    print(#as_msg_lines)
-
     -- Exit the function if the array is empty
     if #as_msg_lines == 0 then
         return
