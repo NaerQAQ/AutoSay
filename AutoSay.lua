@@ -30,6 +30,11 @@ local as_is_random_selection = gui.Checkbox(
     msc_ref, "as_is_random_selection", "Random selection message", false
 );
 
+-- Checkbox for trim message spaces before and after
+local as_is_trim_message_spaces = gui.Checkbox(
+    msc_ref, "as_is_trim_message_spaces", "Trim message spaces before and after", true
+);
+
 -- Editbox for file name
 local as_file_name = gui.Editbox(
     msc_ref, "as_file_name", "File name"
@@ -118,23 +123,21 @@ local function OnDrawAutoSay()
         local message = as_is_random_selection:GetValue()
             and as_msg_lines[math.random(1, #as_msg_lines)] or as_msg_lines[as_current_line]
 
-        -- If the information starts with [team], consider it as a team message
-        local is_team = message.lower(message):find("^%[team%]")
+        -- If the message starts with "[team]", consider it a team message; otherwise, retrieve the configuration
+        local is_team = message:lower():find("^%[team%]") or as_is_team_msg:GetValue()
 
         -- Handle team messages separately for those starting with [team]
         if is_team then
-            client.ChatTeamSay(
-                message.gsub(message, "^%[team%]", "")
-            );
-
-            return
+            message = message.gsub(message, "^%[team%]", "")
         end
 
-        -- For non-[team] messages, proceed with normal configuration retrieval
-        local is_team_msg_value = as_is_team_msg:GetValue()
+        -- Trim message if needed
+        if as_is_trim_message_spaces:GetValue() then
+            message = Trim(message)
+        end
 
         -- Check if it's a team message
-        if is_team_msg_value then
+        if is_team then
             client.ChatTeamSay(message)
         else
             client.ChatSay(message)

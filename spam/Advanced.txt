@@ -1,0 +1,2 @@
+[team] The message starting with "[team]" will be exclusively sent to the team; this is a special syntax
+If the tag is not present, the message will be sent based on the configuration
