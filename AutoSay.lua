@@ -1,6 +1,6 @@
 --[[
     Author: NaerQAQ / Wink
-    Version: 1.1.1
+    Version: 1.1.2
     Script Name: AutoSay
 
     Description:
@@ -16,76 +16,70 @@
 local msc_ref = gui.Reference("MISC", "Part 1");
 
 -- Checkbox for enabling the script
-local is_enable = gui.Checkbox(
-    msc_ref, "is_enable", "Enable", false
+local as_is_enabled = gui.Checkbox(
+    msc_ref, "as_is_enabled", "Enable", false
 );
 
 -- Checkbox for team messages
-local is_team_msg = gui.Checkbox(
-    msc_ref, "is_team_msg", "Is team message", false
+local as_is_team_msg = gui.Checkbox(
+    msc_ref, "as_is_team_msg", "Team message", false
+);
+
+-- Checkbox for random selection
+local as_is_random_selection = gui.Checkbox(
+    msc_ref, "as_is_random_selection", "Random selection message", false
 );
 
 -- Editbox for file name
-local file_name = gui.Editbox(
-    msc_ref, "file_name", "File name"
+local as_file_name = gui.Editbox(
+    msc_ref, "as_file_name", "File name"
 );
 
 -- Slider for the interval between sending messages in game ticks
-local wait_ticks_slider = gui.Slider(
+local as_wait_ticks_slider = gui.Slider(
     msc_ref,
-    "wait_ticks_slider",
+    "as_wait_ticks_slider",
     "Wait ticks", 50.0, 0.0, 200.0, 0.5
 );
 
 -- Array to store each line of the file
-local lines = {}
+local as_msg_lines = {}
 
 -- Current line to be output
-local current_line = 1
+local as_current_line = 1
 
 -- Last tick when a message was sent
-local last_spam_tick = 0
-
--- Last read content of the file
-local last_file_content = ""
+local as_last_spam_tick = 0
 
 ---
--- Loads lines from a specified file into an array and updates the array if the file content has changed.
+-- Loads lines from a specified file into an array.
 --
--- This function reads the content of a file, specified by the user-configured file name,
--- and stores each line in an array. It performs a comparison with the last read file content
--- to determine if an update is necessary. If the file name is empty or the content is unchanged,
--- the function exits early without modifying the array.
+-- This function reads the content of the file specified by the file name,
+-- and stores each line in an array. The array is cleared before each load, and the function exits if the file name is empty.
 --
-local function LoadLinesFromFile()
-    local file_name_value = file_name:GetValue()
-
-    -- Construct the file path
-    local final_file_name = Trim("spam/" .. file_name_value)
+-- @param linesArray table The array to store the lines from the file.
+-- @param fileName string The name of the file to load lines from.
+local function LoadLinesFromFile(lines_array, file_name)
+    -- Reset the array
+    lines_array = {}
 
     -- Exit if the file name is empty
-    if file_name_value == "" then
-        return
+    if file_name == "" then
+        return false
     end
+
+    -- Construct the file path
+    local final_file_name = Trim("spam/" .. file_name)
 
     -- Read file content
     local file_content = file.Read(final_file_name) or ""
 
-    -- Exit if the file content is the same as the last time
-    if file_content == last_file_content then
-        return
-    end
-
-    -- Reset the array
-    lines = {}
-
     -- Split the file content into lines and store them in the array
     for line in string.gmatch(file_content, "[^\r\n]+") do
-        table.insert(lines, line)
+        table.insert(lines_array, line)
     end
 
-    -- Update the last file content
-    last_file_content = file_content
+    return true
 end
 
 ---
@@ -94,9 +88,9 @@ end
 -- This function retrieves user-configurable values, loads lines from a file, and outputs messages at specified intervals.
 -- The spam behavior is controlled by user settings including enabling/disabling, file name, wait time, and team messaging.
 --
-local function OnDraw()
-    local is_enable_value = is_enable:GetValue()
-    local file_name_value = file_name:GetValue()
+local function OnDrawAutoSay()
+    local is_enable_value = as_is_enabled:GetValue()
+    local file_name_value = as_file_name:GetValue()
 
     -- Exit the function if not enabled or file name is empty
     if not is_enable_value or file_name_value == "" then
@@ -104,19 +98,40 @@ local function OnDraw()
     end
 
     -- Load lines from the file into the array
-    LoadLinesFromFile()
+    LoadLinesFromFile(as_msg_lines, file_name_value)
 
     -- Exit the function if the array is empty
-    if #lines == 0 then
+    if #as_msg_lines == 0 then
         return
     end
 
+    -- If the current line to be output is greater than the array length
+    if as_current_line > #as_msg_lines then
+        -- Reset the current line to be output and the last output time
+        as_current_line = 1
+        as_last_spam_tick = 0
+    end
+
     -- If the current line to be output is less than or equal to the array length and enough time has passed since the last output
-    if current_line <= #lines and
-        globals.TickCount() - last_spam_tick >= wait_ticks_slider:GetValue() then
-        -- Output the message
-        local message = lines[current_line]
-        local is_team_msg_value = is_team_msg:GetValue()
+    if globals.TickCount() - as_last_spam_tick >= as_wait_ticks_slider:GetValue() then
+        -- Retrieve information through an array
+        local message = as_is_random_selection:GetValue()
+            and as_msg_lines[math.random(1, #as_msg_lines)] or as_msg_lines[as_current_line]
+
+        -- If the information starts with [team], consider it as a team message
+        local is_team = message.lower(message):find("^%[team%]")
+
+        -- Handle team messages separately for those starting with [team]
+        if is_team then
+            client.ChatTeamSay(
+                message.gsub(message, "^%[team%]", "")
+            );
+
+            return
+        end
+
+        -- For non-[team] messages, proceed with normal configuration retrieval
+        local is_team_msg_value = as_is_team_msg:GetValue()
 
         -- Check if it's a team message
         if is_team_msg_value then
@@ -126,13 +141,8 @@ local function OnDraw()
         end
 
         -- Update the last output time and the current line to be output, ensuring looping
-        last_spam_tick = globals.TickCount()
-        current_line = (current_line % #lines) + 1
-    -- If the current line to be output is greater than the array length
-    elseif current_line > #lines then
-        -- Reset the current line to be output and the last output time
-        current_line = 1
-        last_spam_tick = 0
+        as_last_spam_tick = globals.TickCount()
+        as_current_line = (as_current_line % #as_msg_lines) + 1
     end
 end
 
@@ -143,8 +153,8 @@ end
 -- @return The string without leading and trailing whitespace.
 --
 function Trim(string)
-  return (string:gsub("^%s*(.-)%s*$", "%1"))
+    return (string:gsub("^%s*(.-)%s*$", "%1"))
 end
 
 -- Register the callback
-callbacks.Register("Draw", "AutoSay", OnDraw);
+callbacks.Register("Draw", "AutoSay", OnDrawAutoSay);
