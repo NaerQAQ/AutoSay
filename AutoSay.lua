@@ -40,11 +40,17 @@ local as_file_name = gui.Editbox(
     msc_ref, "as_file_name", "File name"
 );
 
--- Slider for the interval between sending messages in game ticks
+--[[
+    Slider for the interval between sending messages in game ticks
+
+    After repeated testing, a 16.5 tick interval is optimal.
+    Below 16.5 ticks, there is no significant improvement in speed visible to the naked eye. 
+    On the contrary, excessively fast message rates can lead to text disorder due to the rapid sequencing of messages.
+]]
 local as_wait_ticks_slider = gui.Slider(
     msc_ref,
     "as_wait_ticks_slider",
-    "Wait ticks", 50.0, 0.0, 200.0, 0.5
+    "Wait ticks", 16.5, 16.5, 200.0, 0.5
 );
 
 -- Array to store each line of the file
