@@ -18,6 +18,9 @@ _**(We have provided an example, and you can find it in the "spam" folder on the
 - Reading messages from a file instead of hardcoding
 - Optional team message sending
 - Automatic content update after file write
+- In sequential order or completely random
+- Support preprocessing of leading and trailing spaces in strings
+- Special syntax support
 
 ### Contributors
 
