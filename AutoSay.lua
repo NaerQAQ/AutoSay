@@ -1,6 +1,6 @@
 --[[
     Author: NaerQAQ / Wink
-    Version: 1.1.2
+    Version: 1.1.3
     Script Name: AutoSay
 
     Description:
