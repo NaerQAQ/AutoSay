@@ -70,7 +70,7 @@ local function LoadLinesFromFile(lines_array, file_name)
 
     -- Exit if the file name is empty
     if file_name == "" then
-        return false
+        return lines_array
     end
 
     -- Construct the file path
@@ -83,8 +83,8 @@ local function LoadLinesFromFile(lines_array, file_name)
     for line in string.gmatch(file_content, "[^\r\n]+") do
         table.insert(lines_array, line)
     end
-
-    return true
+    
+    return lines_array
 end
 
 ---
@@ -103,7 +103,9 @@ local function OnDrawAutoSay()
     end
 
     -- Load lines from the file into the array
-    LoadLinesFromFile(as_msg_lines, file_name_value)
+    as_msg_lines = LoadLinesFromFile(as_msg_lines, file_name_value)
+
+    print(#as_msg_lines)
 
     -- Exit the function if the array is empty
     if #as_msg_lines == 0 then
